@@ -105,7 +105,7 @@
 
     // 1. 從你上傳的檔案中讀取資料[span_2](start_span)[span_2](end_span)
     // 注意：檔名必須與你在 GitHub 上的名稱完全一致
-    fetch('IELTSluan_2 2.json')
+    fetch('data.json')
         .then(response => {
             if (!response.ok) throw new Error("找不到檔案");
             return response.json();
