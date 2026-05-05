@@ -3,138 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隨機單字卡複習</title>
+    <title>隨機單字卡</title>
     <style>
-        /* 整體背景與佈局 */
-        body { 
-            background: #2c3e50; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            font-family: "Microsoft JhengHei", sans-serif; 
-        }
-
-        /* 單字卡容器 */
-        .card { 
-            width: 90%; 
-            max-width: 500px; 
-            min-height: 350px;
-            background: #ffffff; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
-            padding: 40px; 
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transition: transform 0.1s; 
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-
-        /* 點擊時的縮放效果 */
-        .card:active { transform: scale(0.95); }
-
-        /* 英文單字樣式 */
-        .word-en { 
-            font-size: 42px; 
-            font-weight: 900; 
-            color: #1a252f; 
-            margin-bottom: 5px; 
-        }
-
-        /* 詞性標籤樣式 */
-        .word-pos { 
-            display: inline-block; 
-            background: #3498db; 
-            color: white; 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 14px; 
-            margin-bottom: 25px;
-            align-self: center;
-        }
-
-        /* 中文翻譯樣式 */
-        .word-ch { 
-            font-size: 28px; 
-            color: #2c3e50; 
-            margin-bottom: 30px; 
-            font-weight: bold;
-        }
-
-        /* 例句樣式區塊 */
-        .word-ex { 
-            font-size: 16px; 
-            color: #576574; 
-            line-height: 1.6; 
-            text-align: left; 
-            background: #f1f2f6; 
-            padding: 20px; 
-            border-left: 6px solid #3498db; 
-            border-radius: 8px;
-            margin-top: auto;
-        }
-
-        /* 底部提示文字 */
-        .hint { 
-            margin-top: 25px; 
-            color: #bdc3c7; 
-            font-size: 16px; 
-            letter-spacing: 1px;
-        }
+        body { background: #1a1a1a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .card { width: 85%; max-width: 400px; background: white; border-radius: 24px; padding: 30px; text-align: center; cursor: pointer; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .en { font-size: 36px; font-weight: bold; color: #1a1a1a; margin-bottom: 10px; }
+        .ch { font-size: 20px; color: #444; margin-bottom: 20px; }
+        .ex { font-size: 15px; color: #666; text-align: left; background: #f0f0f0; padding: 15px; border-radius: 10px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
-<!-- 點擊此區塊會觸發 nextRandomWord 函數[span_1](start_span)[span_1](end_span) -->
-<div class="card" onclick="nextRandomWord()">
-    <div id="word-en" class="word-en">載入中...</div>
-    <div id="word-pos" class="word-pos">Loading</div>
-    <div id="word-ch" class="word-ch">請稍候</div>
-    <div id="word-ex" class="word-ex">正在讀取單字庫檔案...</div>
+<div class="card" onclick="showNext()">
+    <div id="en" class="en">點擊開始</div>
+    <div id="ch" class="ch">隨機換單字</div>
+    <div id="ex" class="ex">正在讀取資料庫...</div>
 </div>
-
-<div class="hint">👆 點擊卡片任何地方切換隨機單字</div>
 
 <script>
     let words = [];
 
-    // 1. 從你上傳的檔案中讀取資料[span_2](start_span)[span_2](end_span)
-    // 注意：檔名必須與你在 GitHub 上的名稱完全一致
-    fetch('data.json')
+    // 注意！這裡的路徑要跟你 image_16.png 顯示的檔名完全一致
+    const fileName = 'IELTSluan_2 2.json'; 
+
+    fetch(fileName)
         .then(response => {
-            if (!response.ok) throw new Error("找不到檔案");
+            if (!response.ok) throw new Error('讀取失敗');
             return response.json();
         })
         .then(data => {
             words = data;
-            nextRandomWord(); // 初始載入
+            showNext();
         })
         .catch(err => {
-            document.getElementById('word-en').textContent = "讀取失敗";
-            document.getElementById('word-ch').textContent = "請檢查檔名或路徑";
-            document.getElementById('word-ex').textContent = "錯誤訊息: " + err.message;
+            document.getElementById('en').textContent = "讀取失敗";
+            document.getElementById('ex').textContent = "請確保 " + fileName + " 已經傳到 GitHub 了。";
             console.error(err);
         });
 
-    // 2. 隨機切換邏輯[span_3](start_span)[span_3](end_span)
-    function nextRandomWord() {
-        if (words.length === 0) return;
-        
-        // 從資料陣列中隨機取出一個索引值[span_4](start_span)[span_4](end_span)
-        const randomIndex = Math.floor(Math.random() * words.length);
-        const item = words[randomIndex];
-
-        // 3. 更新畫面上的中英文資訊[span_5](start_span)[span_5](end_span)
-        // 這裡假設 JSON 的欄位名稱分別為 word, pos, meaning, example[span_6](start_span)[span_6](end_span)
-        document.getElementById('word-en').textContent = item.word || "N/A";
-        document.getElementById('word-pos').textContent = item.pos || "詞性未知";
-        document.getElementById('word-ch').textContent = item.meaning || "無中文翻譯";
-        document.getElementById('word-ex').textContent = item.example ? "Example: " + item.example : "目前無例句供參考";
+    function showNext() {
+        if (words.length > 0) {
+            const item = words[Math.floor(Math.random() * words.length)];
+            const content = item.content?.word?.content;
+            
+            document.getElementById('en').textContent = item.headWord || "N/A";
+            document.getElementById('ch').textContent = content?.transCN || "無翻譯";
+            
+            const sentences = content?.sentence?.sentences?.[0];
+            const enEx = sentences?.sContent || "";
+            const cnEx = sentences?.sCn || "";
+            document.getElementById('ex').innerHTML = enEx + "<br><small style='color:#999'>" + cnEx + "</small>";
+        }
     }
 </script>
 
