@@ -2,64 +2,65 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>我的英文單字庫</title>
+    <title>隨機單字卡</title>
     <style>
-        body { display: flex; height: 100vh; margin: 0; font-family: sans-serif; }
-        /* 左側目錄 */
-        #sidebar { width: 300px; border-right: 1px solid #ccc; overflow-y: auto; background: #f9f9f9; }
-        #word-list { list-style: none; padding: 0; margin: 0; }
-        #word-list li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        #word-list li:hover { background: #e0e0e0; }
-        /* 右側內容區 */
-        #content { flex: 1; padding: 40px; }
-        .word-title { font-size: 32px; color: #2c3e50; margin-bottom: 10px; }
-        .detail { margin-bottom: 15px; line-height: 1.6; }
-        .label { font-weight: bold; color: #7f8c8d; }
+        body { background: #f4f7f6; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: 'PingFang TC', sans-serif; }
+        
+        /* 單字卡樣式 */
+        .card { 
+            width: 90%; max-width: 450px; background: white; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 40px; text-align: center;
+            transition: transform 0.2s; cursor: pointer;
+        }
+        .card:active { transform: scale(0.98); }
+
+        .word-en { font-size: 36px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .word-pos { display: inline-block; background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 14px; margin-bottom: 20px; }
+        .word-ch { font-size: 24px; color: #34495e; margin-bottom: 25px; }
+        .word-ex { font-size: 16px; color: #7f8c8d; line-height: 1.5; text-align: left; background: #f9f9f9; padding: 15px; border-left: 5px solid #3498db; border-radius: 4px; }
+
+        .hint { margin-top: 30px; color: #bdc3c7; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div id="sidebar">
-    <ul id="word-list"><li>載入中...</li></ul>
+<div class="card" onclick="nextRandomWord()">
+    <div id="word-en" class="word-en">載入中...</div>
+    <div id="word-pos" class="word-pos">詞性</div>
+    <div id="word-ch" class="word-ch">中文意思</div>
+    <div id="word-ex" class="word-ex">例句將會顯示在這裡</div>
 </div>
 
-<div id="content" id="display-area">
-    <div id="word-info">
-        <p>請從左側目錄選擇一個單字</p>
-    </div>
-</div>
+<div class="hint">按一下卡片：隨機換下一個單字</div>
 
 <script>
-    // 1. 讀取 JSON 檔案[span_3](start_span)[span_3](end_span)
+    let words = [];
+
+    // 1. 抓取 JSON 檔案
     fetch('IELTSluan_2 2.json')
         .then(response => response.json())
         .then(data => {
-            const list = document.getElementById('word-list');
-            list.innerHTML = ''; // 清除「載入中」
-
-            // 2. 自動將單字新增到目錄[span_4](start_span)[span_4](end_span)
-            data.forEach((item, index) => {
-                let li = document.createElement('li');
-                // 這裡假設 JSON 內的 key 是 word，如果不是請根據檔案修改
-                li.textContent = item.word || `單字 ${index + 1}`; 
-                li.onclick = () => showDetail(item);
-                list.appendChild(li);
-            });
+            words = data;
+            nextRandomWord(); // 初始化顯示第一個隨機單字
         })
         .catch(err => {
-            document.getElementById('word-list').innerHTML = '讀取檔案失敗，請檢查檔名。';
+            document.getElementById('word-en').textContent = "檔案讀取錯誤";
             console.error(err);
         });
 
-    // 3. 顯示單字詳細資訊的功能[span_5](start_span)[span_5](end_span)
-    function showDetail(item) {
-        const infoDiv = document.getElementById('word-info');
-        infoDiv.innerHTML = `
-            <div class="word-title">${item.word}</div>
-            <div class="detail"><span class="label">詞性：</span>${item.pos || '無'}</div>
-            <div class="detail"><span class="label">中文：</span>${item.meaning || '無翻譯'}</div>
-            <div class="detail"><span class="label">例句：</span><br>${item.example || '無例句'}</div>
-        `;
+    // 2. 隨機選取單字的功能
+    function nextRandomWord() {
+        if (words.length === 0) return;
+        
+        // 隨機從陣列中挑一個索引
+        const randomIndex = Math.floor(Math.random() * words.length);
+        const item = words[randomIndex];
+
+        // 3. 直接更新畫面內容
+        document.getElementById('word-en').textContent = item.word;
+        document.getElementById('word-pos').textContent = item.pos || 'n/a';
+        document.getElementById('word-ch').textContent = item.meaning;
+        document.getElementById('word-ex').textContent = item.example || "暫無例句";
     }
 </script>
 
