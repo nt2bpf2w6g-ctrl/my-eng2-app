@@ -3,54 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的隨機單字卡</title>
+    <title>隨機單字卡</title>
     <style>
-        body { background: #121212; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
-        .card { width: 90%; max-width: 400px; background: white; color: #333; border-radius: 24px; padding: 35px; text-align: center; cursor: pointer; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .en { font-size: 42px; font-weight: bold; margin-bottom: 5px; color: #1a1a1a; }
-        .pos { color: #ff4757; font-weight: bold; font-size: 14px; margin-bottom: 20px; text-transform: uppercase; }
-        .ch { font-size: 24px; color: #2f3542; margin-bottom: 25px; border-top: 1px solid #eee; padding-top: 15px; }
-        .ex { font-size: 15px; color: #57606f; text-align: left; background: #f1f2f6; padding: 15px; border-radius: 12px; line-height: 1.5; }
+        body { background: #1a1a1a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .card { width: 90%; max-width: 380px; background: white; color: #333; border-radius: 20px; padding: 35px; text-align: center; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .en { font-size: 40px; font-weight: bold; color: #1a1a1a; margin-bottom: 10px; }
+        .ch { font-size: 22px; color: #444; margin-bottom: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .ex { font-size: 14px; color: #777; text-align: left; background: #f9f9f9; padding: 12px; border-radius: 10px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="card" onclick="showNext()">
-    <div id="en" class="en">載入中</div>
-    <div id="pos" class="pos">---</div>
-    <div id="ch" class="ch">正在讀取單字庫</div>
-    <div id="ex" class="ex">請稍候...</div>
+    <div id="en" class="en">點擊換單字</div>
+    <div id="ch" class="ch">Loading...</div>
+    <div id="ex" class="ex">正在讀取 data.json...</div>
 </div>
 
 <script>
     let words = [];
-    // 這裡自動處理檔名中的空格問題
-    const targetFile = encodeURIComponent('IELTSluan_2 2.json');
 
-    fetch(targetFile)
-        .then(res => {
-            if (!res.ok) throw new Error('找不到檔案');
-            return res.json();
-        })
+    // 抓取你在 iPad 上改好名字上傳的檔案
+    fetch('data.json')
+        .then(res => res.json())
         .then(data => {
             words = data;
             showNext();
         })
         .catch(err => {
             document.getElementById('en').textContent = "讀取失敗";
-            document.getElementById('ch').textContent = "請確認檔案在 GitHub 上";
-            console.error(err);
+            document.getElementById('ex').textContent = "請確認 data.json 已上傳至 GitHub 根目錄。";
         });
 
     function showNext() {
         if (words.length > 0) {
-            // 隨機抽一個
             const item = words[Math.floor(Math.random() * words.length)];
-            const content = item.content?.word?.content;
+            const content = item.content?.word?.content; // 根據 image_13.png 的結構
             
-            // 對應你在 image_13.png 看到的結構
             document.getElementById('en').textContent = item.headWord || "N/A";
-            document.getElementById('pos').textContent = content?.pos || "POS";
             document.getElementById('ch').textContent = content?.transCN || "無翻譯";
             
             const sentences = content?.sentence?.sentences?.[0];
