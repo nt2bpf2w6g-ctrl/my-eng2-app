@@ -2,24 +2,43 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>單字練習機</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>英文單字快刷機</title>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f4f9; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 400px; }
-        #word { font-size: 50px; color: #007aff; margin-bottom: 20px; font-weight: bold; }
-        input { width: 100%; padding: 15px; font-size: 20px; border: 2px solid #ddd; border-radius: 12px; box-sizing: border-box; text-align: center; outline: none; }
-        #msg { margin-top: 20px; font-size: 18px; min-height: 24px; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; background: #f0f2f5; 
+        }
+        .card {
+            background: white; width: 85%; max-width: 450px; height: 300px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-radius: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            text-align: center; margin-bottom: 40px;
+        }
+        .en { font-size: 56px; color: #007aff; font-weight: bold; margin-bottom: 10px; }
+        .ch { font-size: 32px; color: #333; }
+        
+        button {
+            background: #007aff; color: white; border: none;
+            padding: 20px 60px; border-radius: 40px; font-size: 24px;
+            font-weight: bold; box-shadow: 0 8px 15px rgba(0,122,255,0.3);
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+        }
+        button:active { transform: scale(0.95); background: #0056b3; }
     </style>
 </head>
 <body>
-<div class="card">
-    <div id="word">---</div>
-    <input type="text" id="answer" placeholder="輸入中文後按換行" autocomplete="off">
-    <div id="msg"></div>
+
+<div class="card" onclick="next()">
+    <div class="en" id="en">Loading...</div>
+    <div class="ch" id="ch">---</div>
 </div>
+
+<button onclick="next()">下一張</button>
+
 <script>
-    // 先放這幾個你感興趣的單字測試，之後可以一直增加
+    // 這裡放你想背的單字，你可以隨時手動增加
     const words = [
         { en: "stock", ch: "股票" },
         { en: "dividend", ch: "股利" },
@@ -27,30 +46,21 @@
         { en: "aperture", ch: "光圈" },
         { en: "safari", ch: "獵遊" },
         { en: "evidence", ch: "證據" },
-        { en: "investigation", ch: "調查" }
+        { en: "investigation", ch: "調查" },
+        { en: "portfolio", ch: "投資組合" },
+        { en: "shutter", ch: "快門" },
+        { en: "exposure", ch: "曝光" }
     ];
-    let cur = {};
+
     function next() {
-        cur = words[Math.floor(Math.random() * words.length)];
-        document.getElementById('word').innerText = cur.en;
-        document.getElementById('answer').value = '';
-        document.getElementById('msg').innerText = '';
-        document.getElementById('answer').focus();
+        const cur = words[Math.floor(Math.random() * words.length)];
+        document.getElementById('en').innerText = cur.en;
+        document.getElementById('ch').innerText = cur.ch;
     }
-    document.getElementById('answer').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const user = e.target.value.trim();
-            if (user === cur.ch) {
-                document.getElementById('msg').innerText = "✅ 答對了！";
-                document.getElementById('msg').style.color = "green";
-                setTimeout(next, 1000);
-            } else {
-                document.getElementById('msg').innerText = "❌ 不對喔，正確是：" + cur.ch;
-                document.getElementById('msg').style.color = "red";
-            }
-        }
-    });
-    next(); // 啟動第一題
+
+    // 啟動第一題
+    next();
 </script>
+
 </body>
 </html>
