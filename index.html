@@ -1,74 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECDICT 單字快刷機</title>
+    <title>我的英文單字庫</title>
     <style>
-        body { 
-            font-family: -apple-system, sans-serif; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; background: #f0f2f5; 
-        }
-        .card {
-            background: white; width: 85%; max-width: 450px; min-height: 300px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border-radius: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            text-align: center; margin-bottom: 40px; padding: 25px; box-sizing: border-box;
-        }
-        .en { font-size: 48px; color: #007aff; font-weight: bold; margin-bottom: 15px; word-break: break-all; }
-        .ch { font-size: 22px; color: #333; line-height: 1.5; text-align: left; width: 100%; }
-        
-        .loader-text { font-size: 18px; color: #666; }
-
-        button {
-            background: #007aff; color: white; border: none;
-            padding: 18px 50px; border-radius: 40px; font-size: 22px;
-            font-weight: bold; box-shadow: 0 8px 15px rgba(0,122,255,0.3);
-            cursor: pointer; -webkit-tap-highlight-color: transparent;
-        }
-        button:active { transform: scale(0.95); }
+        body { display: flex; height: 100vh; margin: 0; font-family: sans-serif; }
+        /* 左側目錄 */
+        #sidebar { width: 300px; border-right: 1px solid #ccc; overflow-y: auto; background: #f9f9f9; }
+        #word-list { list-style: none; padding: 0; margin: 0; }
+        #word-list li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        #word-list li:hover { background: #e0e0e0; }
+        /* 右側內容區 */
+        #content { flex: 1; padding: 40px; }
+        .word-title { font-size: 32px; color: #2c3e50; margin-bottom: 10px; }
+        .detail { margin-bottom: 15px; line-height: 1.6; }
+        .label { font-weight: bold; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
-<div class="card" id="mainCard" onclick="next()">
-    <div id="content">
-        <div class="loader-text">正在連線至 ECDICT 資料庫...</div>
+<div id="sidebar">
+    <ul id="word-list"><li>載入中...</li></ul>
+</div>
+
+<div id="content" id="display-area">
+    <div id="word-info">
+        <p>請從左側目錄選擇一個單字</p>
     </div>
 </div>
 
-<button id="nextBtn" onclick="next()" style="display:none;">下一張</button>
-
 <script>
-    let db = [];
-    // 直接連線到 ECDICT 預處理的 Level 1 核心詞庫
-    const dbUrl = 'https://raw.githubusercontent.com/skywind3000/ECDICT-Ultimate/master/precompiled/level1.json';
-
-    // 抓取資料
-    fetch(dbUrl)
-        .then(r => r.json())
+    // 1. 讀取 JSON 檔案[span_3](start_span)[span_3](end_span)
+    fetch('IELTSluan_2 2.json')
+        .then(response => response.json())
         .then(data => {
-            db = data;
-            document.getElementById('nextBtn').style.display = 'block';
-            next();
+            const list = document.getElementById('word-list');
+            list.innerHTML = ''; // 清除「載入中」
+
+            // 2. 自動將單字新增到目錄[span_4](start_span)[span_4](end_span)
+            data.forEach((item, index) => {
+                let li = document.createElement('li');
+                // 這裡假設 JSON 內的 key 是 word，如果不是請根據檔案修改
+                li.textContent = item.word || `單字 ${index + 1}`; 
+                li.onclick = () => showDetail(item);
+                list.appendChild(li);
+            });
         })
         .catch(err => {
-            document.getElementById('content').innerHTML = '<div class="loader-text" style="color:red">連線失敗，請重新整理網頁</div>';
+            document.getElementById('word-list').innerHTML = '讀取檔案失敗，請檢查檔名。';
+            console.error(err);
         });
 
-    function next() {
-        if (db.length === 0) return;
-
-        // 隨機選取一個單字
-        const cur = db[Math.floor(Math.random() * db.length)];
-        
-        // 格式化翻譯內容：將 \n 換行符號轉為網頁換行
-        const formattedTrans = cur.translation.replace(/\\n/g, '<br>');
-
-        document.getElementById('content').innerHTML = `
-            <div class="en">${cur.word}</div>
-            <div class="ch">${formattedTrans}</div>
+    // 3. 顯示單字詳細資訊的功能[span_5](start_span)[span_5](end_span)
+    function showDetail(item) {
+        const infoDiv = document.getElementById('word-info');
+        infoDiv.innerHTML = `
+            <div class="word-title">${item.word}</div>
+            <div class="detail"><span class="label">詞性：</span>${item.pos || '無'}</div>
+            <div class="detail"><span class="label">中文：</span>${item.meaning || '無翻譯'}</div>
+            <div class="detail"><span class="label">例句：</span><br>${item.example || '無例句'}</div>
         `;
     }
 </script>
