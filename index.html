@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>單字練習機</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 400px; }
+        #word { font-size: 48px; color: #007aff; margin-bottom: 20px; font-weight: bold; }
+        input { width: 100%; padding: 15px; font-size: 20px; border: 2px solid #ddd; border-radius: 12px; box-sizing: border-box; text-align: center; outline: none; }
+        #msg { margin-top: 20px; font-size: 18px; min-height: 24px; line-height: 1.4; color: #333; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div id="loading">載入單字庫中...</div>
+    <div id="quiz" style="display:none;">
+        <div id="word">---</div>
+        <input type="text" id="answer" placeholder="輸入中文後按換行" autocomplete="off">
+        <div id="msg"></div>
+    </div>
+</div>
+<script>
+    let db = [];
+    let cur = {};
+    // 抓取基礎單字庫
+    fetch('https://raw.githubusercontent.com/skywind3000/ECDICT-Ultimate/master/precompiled/level1.json')
+        .then(r => r.json())
+        .then(data => {
+            db = data;
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quiz').style.display = 'block';
+            next();
+        });
+    function next() {
+        cur = db[Math.floor(Math.random() * db.length)];
+        document.getElementById('word').innerText = cur.word;
+        const input = document.getElementById('answer');
+        input.value = '';
+        input.focus();
+        document.getElementById('msg').innerText = '';
+    }
+    document.getElementById('answer').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const val = e.target.value.trim();
+            if (!val) return;
+            if (cur.translation.includes(val)) {
+                document.getElementById('msg').innerHTML = "<span style='color:green'>✅ 正確</span><br>" + cur.translation;
+                setTimeout(next, 2000);
+            } else {
+                document.getElementById('msg').innerHTML = "<span style='color:red'>❌ 不對喔，參考答案：</span><br>" + cur.translation;
+            }
+        }
+    });
+</script>
+</body>
+</html>
